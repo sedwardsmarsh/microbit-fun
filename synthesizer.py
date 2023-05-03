@@ -10,14 +10,15 @@ def transform_range(old_value, old_max, old_min, new_max, new_min):
 
 x_avg = 0
 x_working_sum = 0
+averaging_frequency = [10, 100, 500, 1000, 2000]
+curr_avg_freq = 3 # initialize to 10 ms
 while True:
     x_raw_tilt, y_raw_tilt, _ = accelerometer.get_values()
-    # print('x_raw_tilt=', x_raw_tilt)
         
     # average the x values to make them smoother
-    if ticks_ms() % 1000 == 0:
-        x_avg = x_working_sum/1000
-        print('x_avg=', x_avg)
+    avg = averaging_frequency[curr_avg_freq]
+    if ticks_ms() % avg == 0:
+        x_avg = x_working_sum/avg
         x_working_sum = 0
     x_working_sum += x_raw_tilt
 
@@ -35,3 +36,8 @@ while True:
         music.pitch(transformed_x)
     else:
         speaker.off()
+
+    # change x (pitch) average frequency when a button is presse
+    if button_a.was_pressed():
+        curr_avg_freq = (1 + curr_avg_freq) % len(averaging_frequency)
+        
